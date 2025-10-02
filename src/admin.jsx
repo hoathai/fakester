@@ -11,7 +11,6 @@ function AdminApp() {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState(null);
-  const [unauthorized, setUnauthorized] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -26,11 +25,11 @@ function AdminApp() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       (async () => {
         setSession(session);
-        if (session) {
+        if (session && event === 'SIGNED_IN') {
           await checkUserRole(session.user.id);
-        } else {
+        } else if (!session) {
           setUserRole(null);
-          setUnauthorized(false);
+          setLoading(false);
         }
       })();
     });
@@ -43,7 +42,8 @@ function AdminApp() {
     setUserRole(data);
 
     if (data !== 'RootUser' && data !== 'AdminUser') {
-      setUnauthorized(true);
+      window.location.href = '/index.html';
+      return;
     }
 
     setLoading(false);
@@ -63,30 +63,8 @@ function AdminApp() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-6">
-            <Shield className="h-16 w-16 mx-auto mb-4 text-primary" />
-            <h1 className="text-3xl font-bold mb-2">Admin Portal</h1>
-            <p className="text-muted-foreground">Sign in to access administrative functions</p>
-          </div>
-          <Auth />
-        </div>
-      </div>
-    );
-  }
-
-  if (unauthorized) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <div className="w-full max-w-md text-center">
-          <Shield className="h-16 w-16 mx-auto mb-4 text-destructive" />
-          <h1 className="text-3xl font-bold mb-2">Access Denied</h1>
-          <p className="text-muted-foreground mb-6">
-            You do not have permission to access the admin portal.
-          </p>
-          <Button onClick={handleSignOut}>Sign Out</Button>
-        </div>
+      <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-muted p-6 md:p-10">
+        <Auth />
       </div>
     );
   }
