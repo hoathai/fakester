@@ -7,7 +7,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Select } from './ui/select';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
-import { LogOut } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 
 export default function Dashboard({ session, isWebVersion = false }) {
   const [teams, setTeams] = useState([]);
@@ -19,6 +19,7 @@ export default function Dashboard({ session, isWebVersion = false }) {
   const [loading, setLoading] = useState(true);
   const [showNewTeam, setShowNewTeam] = useState(false);
   const [newTeamName, setNewTeamName] = useState('');
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     loadTeams();
@@ -135,21 +136,28 @@ export default function Dashboard({ session, isWebVersion = false }) {
     <div className="w-full max-w-7xl mx-auto bg-background rounded-lg shadow-xl overflow-hidden">
       <div className="border-b bg-card">
         <div className="flex items-center justify-between p-4">
-          <Select
-            value={currentTeam?.id || ''}
-            onChange={(e) => {
-              const team = teams.find(t => t.id === e.target.value);
-              setCurrentTeam(team);
-            }}
-            className="w-64"
-          >
-            {teams.map(team => (
-              <option key={team.id} value={team.id}>{team.name}</option>
-            ))}
-          </Select>
-          <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign Out">
-            <LogOut className="h-5 w-5" />
-          </Button>
+          <h1 className="text-xl font-semibold">Fake User Manager</h1>
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSettings(!showSettings)}
+              title="Settings"
+            >
+              <Settings className="h-5 w-5" />
+            </Button>
+            {showSettings && (
+              <div className="absolute right-0 mt-2 w-48 bg-card border rounded-lg shadow-lg z-50">
+                <button
+                  onClick={handleSignOut}
+                  className="w-full px-4 py-2 text-left text-sm hover:bg-muted rounded-lg flex items-center gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex border-t">
