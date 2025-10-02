@@ -3,6 +3,7 @@ import { signIn, signUp } from '../lib/supabase';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/card';
+import { CircleUser as UserCircle } from 'lucide-react';
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -33,20 +34,25 @@ export default function Auth() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-4">
+    <div className="flex w-full max-w-sm flex-col gap-6">
+      <a href="#" className="flex items-center gap-2 self-center font-medium">
+        <div className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+          <UserCircle className="size-4" />
+        </div>
+        FakeUser Manager
+      </a>
       <Card>
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">FakeUser Manager</CardTitle>
-          <CardDescription className="text-center">
-            Manage fake user profiles for testing
+        <CardHeader className="text-center">
+          <CardTitle className="text-xl">{isSignUp ? 'Create an account' : 'Login'}</CardTitle>
+          <CardDescription>
+            {isSignUp ? 'Enter your information to create an account' : 'Enter your email below to login to your account'}
           </CardDescription>
         </CardHeader>
-
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {isSignUp && (
               <div className="space-y-2">
-                <label htmlFor="displayName" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <label htmlFor="displayName" className="text-sm font-medium leading-none">
                   Display Name
                 </label>
                 <Input
@@ -61,7 +67,7 @@ export default function Auth() {
             )}
 
             <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              <label htmlFor="email" className="text-sm font-medium leading-none">
                 Email
               </label>
               <Input
@@ -69,13 +75,13 @@ export default function Auth() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="m@example.com"
                 required
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              <label htmlFor="password" className="text-sm font-medium leading-none">
                 Password
               </label>
               <Input
@@ -95,23 +101,24 @@ export default function Auth() {
             )}
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
+              {loading ? 'Loading...' : isSignUp ? 'Create account' : 'Login'}
             </Button>
           </form>
         </CardContent>
-
-        <CardFooter>
-          <Button
-            type="button"
-            variant="link"
-            className="w-full"
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setError('');
-            }}
-          >
-            {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-          </Button>
+        <CardFooter className="flex flex-col gap-4">
+          <div className="text-center text-sm">
+            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setError('');
+              }}
+              className="underline underline-offset-4"
+            >
+              {isSignUp ? 'Login' : 'Sign up'}
+            </button>
+          </div>
         </CardFooter>
       </Card>
     </div>
