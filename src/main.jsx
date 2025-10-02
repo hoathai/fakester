@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
-import { supabase } from './lib/supabase';
+import { supabase, getUserRole } from './lib/supabase';
 import './styles/main.css';
 
 function App() {
@@ -12,17 +12,35 @@ function App() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setLoading(false);
+      if (session) {
+        checkUserRoleAndRedirect(session.user.id);
+      } else {
+        setLoading(false);
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       (async () => {
         setSession(session);
+        if (session && event === 'SIGNED_IN') {
+          await checkUserRoleAndRedirect(session.user.id);
+        } else {
+          setLoading(false);
+        }
       })();
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const checkUserRoleAndRedirect = async (userId) => {
+    const { data: role } = await getUserRole(userId);
+    if (role === 'RootUser' || role === 'AdminUser') {
+      window.location.href = '/admin.html';
+    } else {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
