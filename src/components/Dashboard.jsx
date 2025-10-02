@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { signOut, getUserTeams, createTeam, getFakeUsers } from '../lib/supabase';
+import { signOut, getUserTeams, createTeam, getFakeUsers, getUserRole } from '../lib/supabase';
 import FakeUserList from './FakeUserList';
 import FakeUserForm from './FakeUserForm';
 import TagManager from './TagManager';
+import AdminPanel from './admin/AdminPanel';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Select } from './ui/select';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
-import { LogOut } from 'lucide-react';
+import { LogOut, Shield } from 'lucide-react';
 
 export default function Dashboard({ session, isWebVersion = false }) {
   const [teams, setTeams] = useState([]);
@@ -19,10 +20,17 @@ export default function Dashboard({ session, isWebVersion = false }) {
   const [loading, setLoading] = useState(true);
   const [showNewTeam, setShowNewTeam] = useState(false);
   const [newTeamName, setNewTeamName] = useState('');
+  const [userRole, setUserRole] = useState('CustomerUser');
 
   useEffect(() => {
     loadTeams();
+    loadUserRole();
   }, [session]);
+
+  const loadUserRole = async () => {
+    const { data } = await getUserRole(session.user.id);
+    setUserRole(data);
+  };
 
   useEffect(() => {
     if (currentTeam) {
@@ -161,7 +169,7 @@ export default function Dashboard({ session, isWebVersion = false }) {
             }`}
             onClick={() => setView('list')}
           >
-            Users
+            Fake Users
           </button>
           <button
             className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
@@ -173,6 +181,19 @@ export default function Dashboard({ session, isWebVersion = false }) {
           >
             Tags
           </button>
+          {(userRole === 'RootUser' || userRole === 'AdminUser') && (
+            <button
+              className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
+                view === 'admin'
+                  ? 'border-b-2 border-primary text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+              onClick={() => setView('admin')}
+            >
+              <Shield className="inline h-4 w-4 mr-2" />
+              Admin
+            </button>
+          )}
         </div>
       </div>
 
@@ -206,6 +227,13 @@ export default function Dashboard({ session, isWebVersion = false }) {
 
         {view === 'tags' && (
           <TagManager teamId={currentTeam.id} />
+        )}
+
+        {view === 'admin' && (userRole === 'RootUser' || userRole === 'AdminUser') && (
+          <AdminPanel
+            currentUserId={session.user.id}
+            currentUserRole={userRole}
+          />
         )}
       </div>
     </div>

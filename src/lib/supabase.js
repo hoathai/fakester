@@ -171,3 +171,107 @@ export async function removeTagFromFakeUser(fakeUserId, tagId) {
 
   return { error };
 }
+
+export async function getUserRole(userId) {
+  const { data, error } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  return { data: data?.role || 'CustomerUser', error };
+}
+
+export async function getAllUsers() {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select(`
+      *,
+      user_roles(role)
+    `)
+    .order('created_at', { ascending: false });
+
+  return { data, error };
+}
+
+export async function updateUserProfile(userId, updates) {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .update(updates)
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (!error && updates.status) {
+    await logActivity('user_updated', 'user_profiles', userId, { updates });
+  }
+
+  return { data, error };
+}
+
+export async function updateUserRole(userId, newRole) {
+  const { data, error } = await supabase
+    .from('user_roles')
+    .update({ role: newRole })
+    .eq('user_id', userId)
+    .select()
+    .single();
+
+  if (!error) {
+    await logActivity('role_changed', 'user_roles', userId, { newRole });
+  }
+
+  return { data, error };
+}
+
+export async function deleteUser(userId) {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .update({ status: 'deleted' })
+    .eq('id', userId)
+    .select()
+    .single();
+
+  if (!error) {
+    await logActivity('user_deleted', 'user_profiles', userId, {});
+  }
+
+  return { data, error };
+}
+
+export async function getActivityLogs(limit = 50) {
+  const { data, error } = await supabase
+    .from('activity_logs')
+    .select(`
+      *,
+      user_profiles(email, display_name)
+    `)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  return { data, error };
+}
+
+export async function getUserActivityLogs(userId, limit = 50) {
+  const { data, error } = await supabase
+    .from('activity_logs')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  return { data, error };
+}
+
+export async function logActivity(action, resourceType, resourceId = null, details = {}) {
+  const { error } = await supabase
+    .from('activity_logs')
+    .insert({
+      action,
+      resource_type: resourceType,
+      resource_id: resourceId,
+      details,
+    });
+
+  return { error };
+}
