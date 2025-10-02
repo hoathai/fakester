@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardHeader, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
-import { Search, Plus, Copy, Edit2, Trash2, Zap } from 'lucide-react';
+import { Search, Plus, Copy, CreditCard as Edit2, Trash2, Zap } from 'lucide-react';
 
 export default function FakeUserList({ users, onEdit, onAutofill, onRefresh, onNewUser, isWebVersion = false }) {
   const [searchQuery, setSearchQuery] = useState('');
