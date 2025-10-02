@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createFakeUser, updateFakeUser, getTags, addTagToFakeUser, removeTagFromFakeUser } from '../lib/supabase';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { X } from 'lucide-react';
 
 export default function FakeUserForm({ user, teamId, userId, onComplete, onCancel }) {
   const [formData, setFormData] = useState({
@@ -90,113 +95,119 @@ export default function FakeUserForm({ user, teamId, userId, onComplete, onCance
   };
 
   return (
-    <div className="fake-user-form">
-      <div className="form-header">
-        <h2>{user ? 'Edit User' : 'New User'}</h2>
-        <button onClick={onCancel} className="btn-icon">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-            <path d="M15 5L5 15M5 5l10 10" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        </button>
-      </div>
-
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="name">Name *</label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="John Doe"
-            required
-          />
+    <Card className="max-w-2xl mx-auto">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>{user ? 'Edit User' : 'New User'}</CardTitle>
+          <Button variant="ghost" size="icon" onClick={onCancel}>
+            <X className="h-5 w-5" />
+          </Button>
         </div>
+      </CardHeader>
 
-        <div className="form-group">
-          <label htmlFor="email">Email *</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="john.doe@example.com"
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="phone">Phone</label>
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="+1 (555) 123-4567"
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="address">Address</label>
-          <textarea
-            id="address"
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            placeholder="123 Main St, City, State 12345"
-            rows="2"
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="notes">Notes</label>
-          <textarea
-            id="notes"
-            name="notes"
-            value={formData.notes}
-            onChange={handleChange}
-            placeholder="Additional information..."
-            rows="3"
-          />
-        </div>
-
-        {allTags.length > 0 && (
-          <div className="form-group">
-            <label>Tags</label>
-            <div className="tag-selection">
-              {allTags.map(tag => (
-                <button
-                  key={tag.id}
-                  type="button"
-                  className={`tag-select-btn ${selectedTags.includes(tag.id) ? 'selected' : ''}`}
-                  style={{
-                    borderColor: tag.color,
-                    backgroundColor: selectedTags.includes(tag.id) ? tag.color : 'transparent',
-                    color: selectedTags.includes(tag.id) ? '#fff' : tag.color
-                  }}
-                  onClick={() => toggleTag(tag.id)}
-                >
-                  {tag.name}
-                </button>
-              ))}
-            </div>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="name" className="text-sm font-medium">Name *</label>
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="John Doe"
+              required
+            />
           </div>
-        )}
 
-        {error && <div className="error-message">{error}</div>}
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium">Email *</label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="john.doe@example.com"
+              required
+            />
+          </div>
 
-        <div className="form-actions">
-          <button type="button" onClick={onCancel} className="btn btn-secondary">
-            Cancel
-          </button>
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Saving...' : user ? 'Update' : 'Create'}
-          </button>
-        </div>
-      </form>
-    </div>
+          <div className="space-y-2">
+            <label htmlFor="phone" className="text-sm font-medium">Phone</label>
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              value={formData.phone}
+              onChange={handleChange}
+              placeholder="+1 (555) 123-4567"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="address" className="text-sm font-medium">Address</label>
+            <Textarea
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              placeholder="123 Main St, City, State 12345"
+              rows={2}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="notes" className="text-sm font-medium">Notes</label>
+            <Textarea
+              id="notes"
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              placeholder="Additional information..."
+              rows={3}
+            />
+          </div>
+
+          {allTags.length > 0 && (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Tags</label>
+              <div className="flex flex-wrap gap-2">
+                {allTags.map(tag => (
+                  <Button
+                    key={tag.id}
+                    type="button"
+                    variant={selectedTags.includes(tag.id) ? 'default' : 'outline'}
+                    size="sm"
+                    style={{
+                      borderColor: tag.color,
+                      ...(selectedTags.includes(tag.id) ? { backgroundColor: tag.color, color: 'white' } : { color: tag.color })
+                    }}
+                    onClick={() => toggleTag(tag.id)}
+                  >
+                    {tag.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive rounded-md">
+              {error}
+            </div>
+          )}
+
+          <div className="flex gap-2 justify-end pt-4">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Saving...' : user ? 'Update' : 'Create'}
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

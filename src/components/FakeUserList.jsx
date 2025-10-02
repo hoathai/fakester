@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import { deleteFakeUser } from '../lib/supabase';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Card, CardHeader, CardContent } from './ui/card';
+import { Badge } from './ui/badge';
+import { Search, Plus, Copy, Edit2, Trash2, Zap } from 'lucide-react';
 
 export default function FakeUserList({ users, onEdit, onAutofill, onRefresh, onNewUser, isWebVersion = false }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -28,133 +33,144 @@ export default function FakeUserList({ users, onEdit, onAutofill, onRefresh, onN
   };
 
   return (
-    <div className="fake-user-list">
-      <div className="list-header">
-        <input
-          type="text"
-          className="search-input"
-          placeholder="Search users..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <button onClick={onNewUser} className="btn btn-primary btn-sm">
-          + New User
-        </button>
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            className="pl-10"
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <Button onClick={onNewUser} size="default">
+          <Plus className="mr-2 h-4 w-4" />
+          New User
+        </Button>
       </div>
 
       {allTags.length > 0 && (
-        <div className="tag-filter">
-          <button
-            className={`tag-filter-btn ${!selectedTag ? 'active' : ''}`}
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant={!selectedTag ? 'default' : 'outline'}
+            size="sm"
             onClick={() => setSelectedTag('')}
           >
             All
-          </button>
+          </Button>
           {allTags.map(tag => (
-            <button
+            <Button
               key={tag.id}
-              className={`tag-filter-btn ${selectedTag === tag.id ? 'active' : ''}`}
-              style={{ borderColor: tag.color }}
+              variant={selectedTag === tag.id ? 'default' : 'outline'}
+              size="sm"
               onClick={() => setSelectedTag(tag.id)}
+              style={{
+                borderColor: tag.color,
+                ...(selectedTag === tag.id ? { backgroundColor: tag.color, color: 'white' } : {})
+              }}
             >
               {tag.name}
-            </button>
+            </Button>
           ))}
         </div>
       )}
 
-      <div className="user-cards">
-        {filteredUsers.length === 0 ? (
-          <div className="empty-state">
-            <p>No fake users yet</p>
-            <button onClick={onNewUser} className="btn btn-primary">
+      {filteredUsers.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <p className="text-muted-foreground mb-4">No fake users yet</p>
+            <Button onClick={onNewUser}>
+              <Plus className="mr-2 h-4 w-4" />
               Create Your First User
-            </button>
-          </div>
-        ) : (
-          filteredUsers.map(user => (
-            <div key={user.id} className="user-card">
-              <div className="user-card-header">
-                <h3>{user.name}</h3>
-                <div className="user-card-actions">
-                  <button
-                    onClick={() => onAutofill(user)}
-                    className="btn-icon"
-                    title={isWebVersion ? "Copy to clipboard" : "Autofill"}
-                  >
-                    {isWebVersion ? (
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor">
-                        <path d="M5.333 5.333V3.2a1.2 1.2 0 0 1 1.2-1.2h6.267a1.2 1.2 0 0 1 1.2 1.2v6.267a1.2 1.2 0 0 1-1.2 1.2h-2.133M3.2 6h6.267a1.2 1.2 0 0 1 1.2 1.2v6.267a1.2 1.2 0 0 1-1.2 1.2H3.2a1.2 1.2 0 0 1-1.2-1.2V7.2A1.2 1.2 0 0 1 3.2 6z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    ) : (
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                        <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2z"/>
-                      </svg>
-                    )}
-                  </button>
-                  <button
-                    onClick={() => onEdit(user)}
-                    className="btn-icon"
-                    title="Edit"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor">
-                      <path d="M11.333 2a1.886 1.886 0 0 1 2.667 2.667L4.667 14 1.333 14.667l.667-3.334L11.333 2z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => handleDelete(user.id)}
-                    className="btn-icon btn-danger"
-                    title="Delete"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor">
-                      <path d="M2 4h12M5.333 4V2.667a1.333 1.333 0 0 1 1.334-1.334h2.666a1.333 1.333 0 0 1 1.334 1.334V4m2 0v9.333a1.333 1.333 0 0 1-1.334 1.334H4.667a1.333 1.333 0 0 1-1.334-1.334V4h9.334z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredUsers.map(user => (
+            <Card key={user.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between">
+                  <h3 className="font-semibold text-lg">{user.name}</h3>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onAutofill(user)}
+                      title={isWebVersion ? "Copy to clipboard" : "Autofill"}
+                      className="h-8 w-8"
+                    >
+                      {isWebVersion ? (
+                        <Copy className="h-4 w-4" />
+                      ) : (
+                        <Zap className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onEdit(user)}
+                      title="Edit"
+                      className="h-8 w-8"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(user.id)}
+                      title="Delete"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              </CardHeader>
 
-              <div className="user-card-body">
-                <div className="user-field">
-                  <span className="field-label">Email:</span>
-                  <span className="field-value">{user.email}</span>
+              <CardContent className="space-y-2">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="text-sm font-mono">{user.email}</p>
                 </div>
                 {user.phone && (
-                  <div className="user-field">
-                    <span className="field-label">Phone:</span>
-                    <span className="field-value">{user.phone}</span>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Phone</p>
+                    <p className="text-sm font-mono">{user.phone}</p>
                   </div>
                 )}
                 {user.address && (
-                  <div className="user-field">
-                    <span className="field-label">Address:</span>
-                    <span className="field-value">{user.address}</span>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Address</p>
+                    <p className="text-sm">{user.address}</p>
                   </div>
                 )}
                 {user.notes && (
-                  <div className="user-field">
-                    <span className="field-label">Notes:</span>
-                    <span className="field-value">{user.notes}</span>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Notes</p>
+                    <p className="text-sm">{user.notes}</p>
                   </div>
                 )}
-              </div>
-
-              {user.tags && user.tags.length > 0 && (
-                <div className="user-card-tags">
-                  {user.tags.map(tag => (
-                    <span
-                      key={tag.id}
-                      className="tag-badge"
-                      style={{ backgroundColor: tag.color }}
-                    >
-                      {tag.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
+                {user.tags && user.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 pt-2">
+                    {user.tags.map(tag => (
+                      <Badge
+                        key={tag.id}
+                        variant="secondary"
+                        style={{ backgroundColor: tag.color, color: 'white' }}
+                      >
+                        {tag.name}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -3,6 +3,11 @@ import { signOut, getUserTeams, createTeam, getFakeUsers } from '../lib/supabase
 import FakeUserList from './FakeUserList';
 import FakeUserForm from './FakeUserForm';
 import TagManager from './TagManager';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Select } from './ui/select';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
+import { LogOut } from 'lucide-react';
 
 export default function Dashboard({ session, isWebVersion = false }) {
   const [teams, setTeams] = useState([]);
@@ -95,71 +100,83 @@ export default function Dashboard({ session, isWebVersion = false }) {
 
   if (loading) {
     return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   if (showNewTeam && teams.length === 0) {
     return (
-      <div className="setup-container">
-        <h2>Create Your First Team</h2>
-        <p>Teams help you organize and share fake user profiles</p>
-        <form onSubmit={handleCreateTeam} className="setup-form">
-          <input
-            type="text"
-            value={newTeamName}
-            onChange={(e) => setNewTeamName(e.target.value)}
-            placeholder="Team name"
-            required
-          />
-          <button type="submit" className="btn btn-primary">Create Team</button>
-        </form>
+      <div className="w-full max-w-md mx-auto p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Create Your First Team</CardTitle>
+            <CardDescription>Teams help you organize and share fake user profiles</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleCreateTeam} className="space-y-4">
+              <Input
+                type="text"
+                value={newTeamName}
+                onChange={(e) => setNewTeamName(e.target.value)}
+                placeholder="Team name"
+                required
+              />
+              <Button type="submit" className="w-full">Create Team</Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <div className="header-top">
-          <select
+    <div className="w-full max-w-7xl mx-auto bg-background rounded-lg shadow-xl overflow-hidden">
+      <div className="border-b bg-card">
+        <div className="flex items-center justify-between p-4">
+          <Select
             value={currentTeam?.id || ''}
             onChange={(e) => {
               const team = teams.find(t => t.id === e.target.value);
               setCurrentTeam(team);
             }}
-            className="team-select"
+            className="w-64"
           >
             {teams.map(team => (
               <option key={team.id} value={team.id}>{team.name}</option>
             ))}
-          </select>
-          <button onClick={handleSignOut} className="btn-icon" title="Sign Out">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-              <path d="M13 3h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3M8 14l-5-5 5-5M3 10h11" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </button>
+          </Select>
+          <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign Out">
+            <LogOut className="h-5 w-5" />
+          </Button>
         </div>
 
-        <nav className="nav-tabs">
+        <div className="flex border-t">
           <button
-            className={`nav-tab ${view === 'list' ? 'active' : ''}`}
+            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
+              view === 'list'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
             onClick={() => setView('list')}
           >
             Users
           </button>
           <button
-            className={`nav-tab ${view === 'tags' ? 'active' : ''}`}
+            className={`flex-1 px-6 py-3 text-sm font-medium transition-colors ${
+              view === 'tags'
+                ? 'border-b-2 border-primary text-primary'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
             onClick={() => setView('tags')}
           >
             Tags
           </button>
-        </nav>
-      </header>
+        </div>
+      </div>
 
-      <div className="dashboard-content">
+      <div className="p-6 max-h-[calc(100vh-16rem)] overflow-y-auto">
         {view === 'list' && (
           <FakeUserList
             users={fakeUsers}

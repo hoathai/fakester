@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { getTags, createTag, deleteTag } from '../lib/supabase';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Badge } from './ui/badge';
+import { Plus, Trash2 } from 'lucide-react';
 
 const DEFAULT_COLORS = [
   '#3B82F6', '#10B981', '#F59E0B', '#EF4444',
@@ -60,100 +65,112 @@ export default function TagManager({ teamId }) {
   };
 
   return (
-    <div className="tag-manager">
-      <div className="tag-manager-header">
-        <h2>Manage Tags</h2>
+    <div className="space-y-6 max-w-2xl mx-auto">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Manage Tags</h2>
         {!showForm && (
-          <button onClick={() => setShowForm(true)} className="btn btn-primary btn-sm">
-            + New Tag
-          </button>
+          <Button onClick={() => setShowForm(true)} size="sm">
+            <Plus className="mr-2 h-4 w-4" />
+            New Tag
+          </Button>
         )}
       </div>
 
       {showForm && (
-        <div className="tag-form">
-          <form onSubmit={handleCreateTag}>
-            <div className="form-group">
-              <label htmlFor="tagName">Tag Name</label>
-              <input
-                id="tagName"
-                type="text"
-                value={newTagName}
-                onChange={(e) => setNewTagName(e.target.value)}
-                placeholder="e.g., Testing, Production"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Color</label>
-              <div className="color-picker">
-                {DEFAULT_COLORS.map(color => (
-                  <button
-                    key={color}
-                    type="button"
-                    className={`color-option ${selectedColor === color ? 'selected' : ''}`}
-                    style={{ backgroundColor: color }}
-                    onClick={() => setSelectedColor(color)}
-                  />
-                ))}
+        <Card>
+          <CardContent className="pt-6">
+            <form onSubmit={handleCreateTag} className="space-y-4">
+              <div className="space-y-2">
+                <label htmlFor="tagName" className="text-sm font-medium">Tag Name</label>
+                <Input
+                  id="tagName"
+                  type="text"
+                  value={newTagName}
+                  onChange={(e) => setNewTagName(e.target.value)}
+                  placeholder="e.g., Testing, Production"
+                  required
+                />
               </div>
-            </div>
 
-            {error && <div className="error-message">{error}</div>}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Color</label>
+                <div className="flex gap-2">
+                  {DEFAULT_COLORS.map(color => (
+                    <button
+                      key={color}
+                      type="button"
+                      className={`w-10 h-10 rounded-md border-2 transition-all ${
+                        selectedColor === color ? 'border-foreground scale-110' : 'border-transparent'
+                      }`}
+                      style={{ backgroundColor: color }}
+                      onClick={() => setSelectedColor(color)}
+                    />
+                  ))}
+                </div>
+              </div>
 
-            <div className="form-actions">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowForm(false);
-                  setNewTagName('');
-                  setError('');
-                }}
-                className="btn btn-secondary"
-              >
-                Cancel
-              </button>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
-                {loading ? 'Creating...' : 'Create Tag'}
-              </button>
-            </div>
-          </form>
-        </div>
+              {error && (
+                <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive rounded-md">
+                  {error}
+                </div>
+              )}
+
+              <div className="flex gap-2 justify-end">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowForm(false);
+                    setNewTagName('');
+                    setError('');
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Creating...' : 'Create Tag'}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       )}
 
-      <div className="tag-list">
-        {tags.length === 0 ? (
-          <div className="empty-state">
-            <p>No tags yet</p>
+      {tags.length === 0 ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <p className="text-muted-foreground mb-4">No tags yet</p>
             {!showForm && (
-              <button onClick={() => setShowForm(true)} className="btn btn-primary">
+              <Button onClick={() => setShowForm(true)}>
+                <Plus className="mr-2 h-4 w-4" />
                 Create Your First Tag
-              </button>
+              </Button>
             )}
-          </div>
-        ) : (
-          tags.map(tag => (
-            <div key={tag.id} className="tag-item">
-              <span
-                className="tag-badge large"
-                style={{ backgroundColor: tag.color }}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-3">
+          {tags.map(tag => (
+            <div key={tag.id} className="flex items-center justify-between p-4 border rounded-lg bg-card">
+              <Badge
+                className="text-base px-4 py-2"
+                style={{ backgroundColor: tag.color, color: 'white' }}
               >
                 {tag.name}
-              </span>
-              <button
+              </Badge>
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => handleDeleteTag(tag.id)}
-                className="btn-icon btn-danger"
+                className="text-destructive hover:text-destructive"
                 title="Delete tag"
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor">
-                  <path d="M2 4h12M5.333 4V2.667a1.333 1.333 0 0 1 1.334-1.334h2.666a1.333 1.333 0 0 1 1.334 1.334V4m2 0v9.333a1.333 1.333 0 0 1-1.334 1.334H4.667a1.333 1.333 0 0 1-1.334-1.334V4h9.334z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

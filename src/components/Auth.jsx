@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { signIn, signUp } from '../lib/supabase';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/card';
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -30,70 +33,87 @@ export default function Auth() {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-header">
-        <h1>FakeUser Manager</h1>
-        <p>Manage fake user profiles for testing</p>
-      </div>
+    <div className="w-full max-w-md mx-auto p-4">
+      <Card>
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">FakeUser Manager</CardTitle>
+          <CardDescription className="text-center">
+            Manage fake user profiles for testing
+          </CardDescription>
+        </CardHeader>
 
-      <form onSubmit={handleSubmit} className="auth-form">
-        {isSignUp && (
-          <div className="form-group">
-            <label htmlFor="displayName">Display Name</label>
-            <input
-              id="displayName"
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="John Doe"
-              required
-            />
-          </div>
-        )}
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {isSignUp && (
+              <div className="space-y-2">
+                <label htmlFor="displayName" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Display Name
+                </label>
+                <Input
+                  id="displayName"
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+            )}
 
-        <div className="form-group">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            required
-          />
-        </div>
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-            required
-          />
-        </div>
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Password
+              </label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+              />
+            </div>
 
-        {error && <div className="error-message">{error}</div>}
+            {error && (
+              <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive rounded-md">
+                {error}
+              </div>
+            )}
 
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
-        </button>
-      </form>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
+            </Button>
+          </form>
+        </CardContent>
 
-      <div className="auth-footer">
-        <button
-          type="button"
-          className="btn-link"
-          onClick={() => {
-            setIsSignUp(!isSignUp);
-            setError('');
-          }}
-        >
-          {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-        </button>
-      </div>
+        <CardFooter>
+          <Button
+            type="button"
+            variant="link"
+            className="w-full"
+            onClick={() => {
+              setIsSignUp(!isSignUp);
+              setError('');
+            }}
+          >
+            {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
