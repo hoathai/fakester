@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { deleteFakeUser } from '../lib/supabase';
 
-export default function FakeUserList({ users, onEdit, onAutofill, onRefresh, onNewUser }) {
+export default function FakeUserList({ users, onEdit, onAutofill, onRefresh, onNewUser, isWebVersion = false }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
 
@@ -80,11 +80,17 @@ export default function FakeUserList({ users, onEdit, onAutofill, onRefresh, onN
                   <button
                     onClick={() => onAutofill(user)}
                     className="btn-icon"
-                    title="Autofill"
+                    title={isWebVersion ? "Copy to clipboard" : "Autofill"}
                   >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                      <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2z"/>
-                    </svg>
+                    {isWebVersion ? (
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor">
+                        <path d="M5.333 5.333V3.2a1.2 1.2 0 0 1 1.2-1.2h6.267a1.2 1.2 0 0 1 1.2 1.2v6.267a1.2 1.2 0 0 1-1.2 1.2h-2.133M3.2 6h6.267a1.2 1.2 0 0 1 1.2 1.2v6.267a1.2 1.2 0 0 1-1.2 1.2H3.2a1.2 1.2 0 0 1-1.2-1.2V7.2A1.2 1.2 0 0 1 3.2 6z" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2z"/>
+                      </svg>
+                    )}
                   </button>
                   <button
                     onClick={() => onEdit(user)}

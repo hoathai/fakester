@@ -4,7 +4,7 @@ import FakeUserList from './FakeUserList';
 import FakeUserForm from './FakeUserForm';
 import TagManager from './TagManager';
 
-export default function Dashboard({ session }) {
+export default function Dashboard({ session, isWebVersion = false }) {
   const [teams, setTeams] = useState([]);
   const [currentTeam, setCurrentTeam] = useState(null);
   const [fakeUsers, setFakeUsers] = useState([]);
@@ -79,12 +79,18 @@ export default function Dashboard({ session }) {
   };
 
   const handleAutofill = (user) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        action: 'autofill',
-        user: user
+    if (isWebVersion) {
+      alert('Autofill is only available in the Chrome extension version. User data copied to clipboard!');
+      const userData = `Name: ${user.name}\nEmail: ${user.email}\nPhone: ${user.phone || 'N/A'}\nAddress: ${user.address || 'N/A'}`;
+      navigator.clipboard.writeText(userData);
+    } else {
+      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+        chrome.tabs.sendMessage(tabs[0].id, {
+          action: 'autofill',
+          user: user
+        });
       });
-    });
+    }
   };
 
   if (loading) {
@@ -164,6 +170,7 @@ export default function Dashboard({ session }) {
               setSelectedUser(null);
               setView('form');
             }}
+            isWebVersion={isWebVersion}
           />
         )}
 
